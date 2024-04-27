@@ -11,4 +11,4 @@ This is a very teeny library to create signals that connect to a [LiveState](htt
 
  ## Example
 
- See [preact-example.html](./preact-example.html) for a small example that uses preact signals. It is designed to connect to the [silly_crm](https://github.com/launchscout/silly_crm) example project. You'll need to have that up and running first for it to work.
+ See [preact-example.html](./preact-example.html) for a small example that uses preact signals. It is designed to connect to the [silly_crm](https://github.com/superchris/silly_crm) example project. You'll need to have that up and running first for it to work.
