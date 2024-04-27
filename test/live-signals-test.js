@@ -8,11 +8,10 @@ import { expect } from '@esm-bundle/chai';
 describe('Live Signals', () => {
   const liveState = new LiveState({url: 'foo', topic: 'bar'});
   liveState.connect = Sinon.stub();
+  liveState.dispatchEvent = Sinon.stub();
 
   it('can create preact signals', () => {
-    const liveState = new LiveState({url: 'foo', topic: 'bar'});
-    liveState.connect = Sinon.stub();
-    const preactLiveSignal = createPreactSignal(liveState);
+    const [preactLiveSignal, dispatchEvent] = createPreactSignal(liveState);
     let state;
     preactEffect(() => {
       state = preactLiveSignal.value;
@@ -24,10 +23,14 @@ describe('Live Signals', () => {
       }
     }));
     expect(state.foo).to.equal('bar');
+    expect(liveState.connect.calledOnce).to.be.true;
+    const wutEvent = new CustomEvent('wut', {detail: {foo: 'baz'}});
+    dispatchEvent(wutEvent);
+    expect(liveState.dispatchEvent.calledWith(wutEvent)).to.be.true;
   });
 
   it('can create polyfill signals', async () => {
-    const polyfillSignal = createPolyfillSignal(liveState);
+    const [polyfillSignal, dispatchEvent] = createPolyfillSignal(liveState);
     let state;
     polyfillEffect(() => {
       state = polyfillSignal.get();
@@ -40,6 +43,9 @@ describe('Live Signals', () => {
     }));
     await new Promise(resolve => setTimeout(resolve, 0));
     expect(state.foo).to.equal('bar');
+    const wutEvent = new CustomEvent('wut', {detail: {foo: 'baz'}});
+    dispatchEvent(wutEvent);
+    expect(liveState.dispatchEvent.calledWith(wutEvent)).to.be.true;
   });
 
 });

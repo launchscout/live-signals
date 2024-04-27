@@ -1,30 +1,36 @@
-import { signal } from '@preact/signals-core';
+import { signal } from '@preact/signals';
 import { Signal } from 'signal-polyfill';
 import LiveState from 'phx-live-state';
 
 export const createPreactSignal = (liveStateOrOptions) => {
-  const liveState = createLiveState(liveStateOrOptions);
-  const preactSignal = signal({});
+  const { path, initialValue } = liveStateOrOptions;
+  const [liveState, dispatchEvent] = createLiveState(liveStateOrOptions);
+  const updater = path? subscript(path) : (state) => state;
+  const preactSignal = signal(initialValue ? initialValue : {});
   liveState.eventTarget.addEventListener('livestate-change', ({detail: { state }}) => {
-    preactSignal.value = state;
+    preactSignal.value = updater(state);
   });
-  return preactSignal;
+  return [preactSignal, dispatchEvent];
 }
 
 export const createPolyfillSignal = (liveStateOrOptions) => {
-  const liveState = createLiveState(liveStateOrOptions);
+  const [liveState, dispatchEvent] = createLiveState(liveStateOrOptions);
   const polyfillSignal = new Signal.State({});
   liveState.eventTarget.addEventListener('livestate-change', ({detail: { state }}) => {
     polyfillSignal.set(state);
   });
-  return polyfillSignal;
+  return [polyfillSignal, dispatchEvent];
 }
 
 const createLiveState = (liveStateOrOptions) => {
+  let liveState;
   if (liveStateOrOptions instanceof LiveState) {
-    return liveStateOrOptions;
+    liveState = liveStateOrOptions;
   } else {
-    return new LiveState(liveStateOrOptions);
+    liveState = new LiveState(liveStateOrOptions);
   }
+  const dispatchEvent = (event) => liveState.dispatchEvent(event);
+  liveState.connect();
+  return [liveState, dispatchEvent];
 }
 
