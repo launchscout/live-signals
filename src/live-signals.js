@@ -1,6 +1,7 @@
 import { signal } from '@preact/signals';
 import { Signal } from 'signal-polyfill';
 import LiveState from 'phx-live-state';
+import subscript from 'subscript';
 
 export const createPreactSignal = (liveStateOrOptions) => {
   const { path, initialValue } = liveStateOrOptions;
@@ -14,10 +15,12 @@ export const createPreactSignal = (liveStateOrOptions) => {
 }
 
 export const createPolyfillSignal = (liveStateOrOptions) => {
+  const { path, initialValue } = liveStateOrOptions;
   const [liveState, dispatchEvent] = createLiveState(liveStateOrOptions);
-  const polyfillSignal = new Signal.State({});
+  const updater = path? subscript(path) : (state) => state;
+  const polyfillSignal = new Signal.State(initialValue ? initialValue : {});
   liveState.eventTarget.addEventListener('livestate-change', ({detail: { state }}) => {
-    polyfillSignal.set(state);
+    polyfillSignal.set(updater(state));
   });
   return [polyfillSignal, dispatchEvent];
 }
