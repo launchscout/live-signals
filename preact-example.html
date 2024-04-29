@@ -42,15 +42,19 @@
     const html = htm.bind(h);
 
     function People(props) {
-      let comment = '';
-      const onInput = event => (comment = event.currentTarget.value);
-      const onClick = () => dispatchEvent(new CustomEvent('add-person', { detail: { comment } }));
+      const onSubmit = (event) => {
+        event.preventDefault();
+        const person = Object.fromEntries(new FormData(event.target));
+        console.log('person', person);
+        dispatchEvent(new CustomEvent('save-person', { detail: person }));
+      };
       return html`
     <table>
       <thead>
         <tr>
           <th>Last name</th>
           <th>First name</th>
+          <th>Birth date</th>
         </tr>
       </thead>
       <tbody>
@@ -58,16 +62,21 @@
         <tr>
           <td>${person.last_name}</td>
           <td>${person.first_name}</td>
+          <td>${person.birth_date}</td>
           <td></td>
         </tr>`)}
       </tbody>
-    </table>`;
+    </table>
+    <form onSubmit=${onSubmit}>
+      <input type="text" name="last_name" placeholder="Last name" />
+      <input type="text" name="first_name" placeholder="First name" />
+      <input type="text" name="birth_date" type="date" />
+      <button type="submit">Add</button>
+    </form>
+    `;
     }
 
     render(html`<${People} />`, document.body);
-
-
-
   </script>
 </head>
 
