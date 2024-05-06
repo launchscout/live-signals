@@ -1,8 +1,9 @@
 {
   "name": "@launchscout/live-signals",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Signals for LiveState",
-  "main": "index.js",
+  "main": "src/live-signals.js",
+  "module": "src/live-signals.js",
   "scripts": {
     "test": "web-test-runner"
   },
